@@ -1,0 +1,385 @@
+<?php
+    //Import PHPMailer classes into the global namespace
+    //These must be at the top of your script, not inside a function
+    use PHPMailer\PHPMailer\PHPMailer;
+    use PHPMailer\PHPMailer\SMTP;
+    use PHPMailer\PHPMailer\Exception;
+ 
+    //Load Composer's autoloader
+    require 'vendor/autoload.php';
+ 
+    if (isset($_POST["register"]))
+    {
+        $name = $_POST["name"];
+        $email = $_POST["email"];
+        $password = $_POST["password"];
+ 
+        //Instantiation and passing `true` enables exceptions
+        $mail = new PHPMailer(true);
+ 
+        try {
+            //Enable verbose debug output
+            $mail->SMTPDebug = 0;//SMTP::DEBUG_SERVER;
+ 
+            //Send using SMTP
+            $mail->isSMTP();
+ 
+            //Set the SMTP server to send through
+            $mail->Host = 'smtp.gmail.com';
+ 
+            //Enable SMTP authentication
+            $mail->SMTPAuth = true;
+ 
+            //SMTP username
+            $mail->Username = 'your_email@gmail.com';
+ 
+            //SMTP password
+            $mail->Password = 'your_password';
+ 
+            //Enable TLS encryption;
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+ 
+            //TCP port to connect to, use 465 for `PHPMailer::ENCRYPTION_SMTPS` above
+            $mail->Port = 587;
+ 
+            //Recipients
+            $mail->setFrom('your_email@gmail.com', 'your_website_name');
+ 
+            //Add a recipient
+            $mail->addAddress($email, $name);
+ 
+            //Set email format to HTML
+            $mail->isHTML(true);
+ 
+            $verification_code = substr(number_format(time() * rand(), 0, '', ''), 0, 6);
+ 
+            $mail->Subject = 'Email verification';
+            $mail->Body    = '<p>Your verification code is: <b style="font-size: 30px;">' . $verification_code . '</b></p>';
+ 
+            $mail->send();
+            // echo 'Message has been sent';
+ 
+            $encrypted_password = password_hash($password, PASSWORD_DEFAULT);
+ 
+            // connect with database
+            $conn = mysqli_connect("localhost:8889", "root", "root", "test");
+ 
+            // insert in users table
+            $sql = "INSERT INTO users(name, email, password, verification_code, email_verified_at) VALUES ('" . $name . "', '" . $email . "', '" . $encrypted_password . "', '" . $verification_code . "', NULL)";
+            mysqli_query($conn, $sql);
+ 
+            header("Location: email-verification.php?email=" . $email);
+            exit();
+        } catch (Exception $e) {
+            echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+        }
+    }
+?>
+
+========================================================================================================
+<?php
+session_start();
+
+if (isset($_POST["send_verification"])) {
+    $email = $_POST["email"];
+    // Generate a verification code
+    $verification_code = generateVerificationCode();
+
+    // Send verification code to the user's email
+    sendVerificationCode($email, $verification_code);
+
+    // Store the verification code in session for validation later
+    $_SESSION['verification_code'] = $verification_code;
+    $_SESSION['email'] = $email;
+
+    echo "<p>Verification code sent to your email. Check your inbox.</p>";
+    exit();
+}
+
+if (isset($_POST["verify_email"])) {
+    $email = $_SESSION['email'];
+    $verification_code = $_POST["verification_code"];
+
+    // Verify the entered verification code
+    if ($verification_code === $_SESSION['verification_code']) {
+        // Code is correct, proceed to mark email as verified
+        // Your database update code here...
+        echo "<p>Email verified successfully. You can reset your password now.</p>";
+    } else {
+        echo "<p>Verification code is incorrect. Please try again.</p>";
+    }
+    exit();
+}
+
+// Function to generate a verification code
+function generateVerificationCode() {
+    return rand(100000, 999999); // You can adjust the range or algorithm as needed
+}
+
+// Function to send verification code to the user's email
+function sendVerificationCode($email, $code) {
+    // Use PHP's mail function or a third-party library like PHPMailer to send emails
+    // Example using PHP's mail function
+    $subject = "Password Reset Verification Code";
+    $message = "Your verification code is: " . $code;
+    $headers = "From: your_email@example.com";
+
+    mail($email, $subject, $message, $headers);
+}
+?>
+
+==================================================================================================
+        <?php
+            session_start();
+            
+            if (isset($_POST['username'])) 
+            {
+                if(!empty($username))
+                {
+                    $username = $_POST['username'];
+                }
+            }
+
+            if(!empty($username))
+            {
+                include('connection.php');
+
+                $sql = "SELECT * FROM users WHERE name = '".$username."'";
+
+                $result =mysqli_query($conn,$sql);
+            
+            
+            while($row = mysqli_num_rows($result)) 
+            {
+                ?>
+                <tr>
+                        <td><?php echo $row['name'] ?></td><br>
+                        <td><?php echo $row['phoneNo'] ?></td><br>
+                        <td><?php echo $row['email'] ?></td><br>
+                    </tr>
+                <?php
+            }
+        } 
+        
+       
+           /* else 
+            {
+                echo "<script>alert('Record Not Found')
+                window.location.href='userAccount.php'</script>";
+                exit();
+            }*/
+             ?>
+
+=========================================================================================================
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://bootswatch.com/5/darkly/bootstrap.css">
+    <link rel="stylesheet" href="userAccount.css">
+    <title>My Account</title>
+</head>
+
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg bg-light" data-bs-theme="light">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="index.html">Badminton Inspired All</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor03" aria-controls="navbarColor03" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarColor03">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="index.php">HOME
+                                <span class="visually-hidden">(current)</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="event.php">EVENTS</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="contact.php">CONTACT</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="shopping.php">SHOPPING</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="users/login.php">USER LOGIN</a>
+                        </li>
+                    </ul>
+                    <form class="d-flex">
+                        <input class="form-control me-sm-2" type="search" placeholder="Search">
+                        <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
+                    </form>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <h3>
+        <bold>MY ACCOUNT</bold>
+    </h3>
+
+    <section class="container-navigation">
+        <h4>ACCOUNT NAVIGATION</h4>
+        <div class="container">
+            <ul>
+                <li>
+                    <a href="#" class="my-account">MY ACCOUNT</a>
+                    <a href="#" class="order-history">ORDER HISTORY</a>
+                    <a href="#" class="address-book">ADDRESS BOOK</a>
+                    <a href="#" class="shop-preferences">SHOP PREFERENCES</a>
+                    <a href="#" class="account-information">ACCOUNT INFORMATION</a>
+                    <a href="logout.php" class="logout">LOGOUT</a>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <section class="container-information">
+        <div>
+            <h5>ACCOUNT INFORMATION</h5>
+            <p>Contact Information</p>
+            <?php
+include('connection.php');
+
+if($_SESSION['email']==true)
+{
+
+}else{
+    echo "window.location.href='login.php'";
+}
+
+echo ""
+
+?>
+            
+            
+        </div>
+    </section>
+</body>
+
+</html>
+======================================================================================================
+<?php
+
+include ('connection.php');
+
+$_SESSION['email']=$email;
+$_SESSION['password']=$password;
+
+if ($email == true) {
+	
+}else{
+	echo "<script>alert('information error')window.location.href='login.php'</script>";
+}
+
+ echo "<h2>Welcome</h2>".$_SESSION['email'];
+ echo "<br>";
+ echo "<br>";
+
+if (isset($_POST['submit'])) {
+ 	
+ 	session_destroy();
+ 	echo "window.location.href='login.php'";
+ }
+
+
+
+?>
+====================================================Login Process=============================================
+<?php
+session_start();
+
+$email = $_POST['name']; 
+$password = $_POST['password'];
+
+//ensure is set in the post 
+if(isset($_POST['name']) && isset($_POST['password'])) 
+{
+    //ensure is not empty
+    if(!empty($_POST['name']) && !empty($_POST['password'])) 
+    {
+        $email = $_POST['name'];
+        $password = $_POST['password'];
+    }
+}
+
+if (!empty($email) && !empty($password)) {
+
+    include('connection.php');
+    
+    // Prepared statement to prevent SQL injection
+    $sql = "SELECT * FROM login WHERE email='".$email."' AND password='".$password."'";
+    $result = mysqli_query($conn, $sql);
+
+    if (mysqli_num_rows($result)>0) 
+    {
+        echo "<script>alert('Login Successful');
+        window.location.href='../index.php'</script>";
+        //make sure no another output is carrying out
+        exit();
+    }
+    else 
+    {
+        //Password or Login incorrect
+        echo "<script>alert('Invalid Password or Email')
+        window.location.href='login.php'</script>";
+    }
+} 
+else 
+{
+    //didn't complete file
+    echo "<script>alert('Please Complete Login Form')
+    window.location.href='login.php'</script>";
+}
+?>
+=====================================================================================
+<?php
+session_start();
+
+$email = $_POST['name']; 
+$password = $_POST['password'];
+
+// Ensure both email and password are set and not empty
+if(isset($_POST['name']) && isset($_POST['password'])) 
+{
+    if(!empty($_POST['name']) && !empty($_POST['password']))
+    {
+        include('connection.php');
+    
+    // Prepared statement to prevent SQL injection
+    $sql = "SELECT * FROM users WHERE email='".$email."' AND password='".$password."'";
+    $result = mysqli_query($conn, $sql);
+
+    if (mysqli_num_rows($result) > 0) 
+    {
+        $row = mysqli_fetch_assoc($result);
+        $_SESSION['loggin']=true;
+        $_SESSION['email'] = $row['email'];
+        $_SESSION['name'] = $row['name']; // Assuming name is stored in the database
+        $_SESSION['phone'] = $row['phoneNo']; // Assuming phone is stored in the database
+        // Redirect to the target file
+        echo "<script>alert('Login Successful')
+        window.location.href='../index2.php'</script>";
+        exit(); // Ensure script stops here to prevent further execution
+    }
+    else 
+    {
+        // Password or Login incorrect
+        echo "<script>alert('Invalid Password or Email')
+        window.location.href='login.php'</script>";
+        exit();
+    }
+    } 
+}
+else 
+{
+    // Didn't complete the form
+    echo "<script>alert('Please Complete Login Form')
+    window.location.href='login.php'</script>";
+}
+?>

@@ -1,0 +1,28 @@
+*{
+    box-sizing: border-box;
+    background-color:#36454F ;
+}
+.container-text
+{
+    text-align: center;
+    color: #fff;
+}
+h2{
+    text-decoration: underline;
+}
+.deleteForm{
+    text-align: center;
+}
+.deleteForm button{
+    color: #fff;
+}
+.deleteForm a{
+    display: inline-block;
+    align-items: center;
+    background-color: rgb(216, 59, 151);
+    color: #fff;
+    padding: 1px 5px;
+    text-decoration: underline;
+    width: 2px 5px;
+
+}

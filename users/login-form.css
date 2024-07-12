@@ -1,0 +1,92 @@
+*{
+    padding :0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body{
+    min-height: 100vh;
+    display: grid;
+    place-content: center;
+    justify-content: center;
+    background-color: #36454F ;
+    
+}
+.container{
+    background-color: #fff;
+    max-width: 400px;
+    padding: 3.5rem;
+    margin: 1rem;
+    border-radius: 1.5rem;
+    border: 3px solid yellow ;
+}
+
+.container h2{
+    margin-bottom: 1rem;
+}
+
+input{
+    width: 100%;
+    padding: .65rem .25rem;
+    border: 0;
+    outline: 1px solid #bbb;
+    border-radius: .25rem;
+}
+
+.button{
+    cursor: pointer;
+    background-color: #a22cff;
+    color: #fff;
+    width: 100%;
+    padding: .85rem;
+    margin-top: 1rem;
+    border-radius: .25rem;
+    border: 0;
+}
+/*
+.forgetpassword{
+    margin: 1rem;
+    text-align: center;
+    font-size: 1.2rem;
+    display: block;
+}
+
+.signup{
+    text-align: center;
+    display:block;
+    margin:1rem;
+    font-size: 1.2rem;
+}*/
+
+.forgetpassword, .signup {
+    text-align: center;
+    font-size: 1rem;
+    display: flex;
+    justify-content:center;
+    align-items: center;
+    height: 11%;
+    margin-top: 0.8rem;
+}
+.home{
+    text-align: center;
+    font-size: 1rem;
+    display: flex;
+    justify-content:center;
+    align-items: center;
+    height: 11%;
+    margin-top: 0.8rem;
+}
+
+a:link,a:visited{
+    display: inline-block;
+    text-align: center;
+    background-color: rgb(216, 59, 151);
+    color: #fff;
+    padding: 7px 14px;
+    text-decoration: none;
+    display: flex;
+}
+
+a:hover,a:active{
+    background-color: rgb(255,30,122);
+}
