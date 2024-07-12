@@ -1,0 +1,51 @@
+.event-container{
+    flex: 0 0 40%;
+    margin-right: 20px;
+}
+
+.event-details{
+    flex: 0 0 60%;
+}
+
+.row{
+    display: flex;
+}
+
+@media (max-width: 768){
+    .event-container,
+    .event-details{
+        flex: 0 0 auto;
+        margin-right: 0;
+    }
+}
+
+.btn-primary{
+    background-color: #007bff;
+    border-color:#007bff ;
+}
+
+.btn-primary:hover{
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+
+.navbar-nav .nav-link{
+    position: relative;
+}
+
+.navbar-nav .nav-link img{
+    width: 24px;
+    height: auto;
+}
+
+.cart-badge{
+    position: absolute;
+    top: 0;
+    right: -10px;
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    padding: 5px 8px;
+    font-size:12px ;
+}
